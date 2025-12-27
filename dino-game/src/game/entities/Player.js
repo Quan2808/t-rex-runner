@@ -120,4 +120,16 @@ export default class Player {
     window.removeEventListener("touchstart", this.#touchstart);
     window.removeEventListener("touchend", this.#touchend);
   }
+
+  collideWith(cactus) {
+    const paddingX = 10;
+    const paddingY = 10;
+
+    return (
+      this.x + paddingX < cactus.x + cactus.width &&
+      this.x + this.width - paddingX > cactus.x &&
+      this.y + paddingY < cactus.y + cactus.height &&
+      this.y + this.height - paddingY > cactus.y
+    );
+  }
 }

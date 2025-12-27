@@ -26,12 +26,13 @@ export default class Cactus {
     this.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
   }
 
-  collideWith(player) {
+  collideWith(sprite) {
+    const adjustBy = 1.4;
     return (
-      this.left < player.x + player.width &&
-      this.right > player.x &&
-      this.top < player.y + player.height &&
-      this.bottom > player.y
+      this.left < sprite.x + sprite.width &&
+      this.right > sprite.x &&
+      this.top < sprite.y + sprite.height &&
+      this.bottom > sprite.y
     );
   }
 }

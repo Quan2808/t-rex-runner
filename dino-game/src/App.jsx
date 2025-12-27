@@ -1,7 +1,7 @@
 import "@/game.css";
-import Player from "@/game/entities/Player.js";
-import Ground from "@/game/entities/Ground.js";
-import CactiController from "@/game/CactiController.js";
+import Player from "./game/entities/Player.js";
+import Ground from "./game/entities/Ground.js";
+import CactiController from "./game/CactiController.js";
 import {
   GAME_WIDTH,
   GAME_HEIGHT,
@@ -33,6 +33,9 @@ function App() {
     let ground = null;
     let cactiController = null;
     let gameSpeed = GAME_SPEED_START;
+    let gameOver = false;
+    let score = 0;
+    let highScore = localStorage.getItem("dinoHighScore") || 0;
 
     const createSprites = () => {
       const playerWidthInGame =
@@ -110,6 +113,47 @@ function App() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
 
+    const showGameOver = () => {
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "white";
+      ctx.font = `${30 * scaleRatio}px VT323`;
+      ctx.textAlign = "center";
+      ctx.fillText(
+        "GAME OVER",
+        canvas.width / 2,
+        canvas.height / 2 - 50 * scaleRatio
+      );
+
+      ctx.font = `${20 * scaleRatio}px VT323`;
+      ctx.fillText(
+        `Score: ${Math.floor(score)}`,
+        canvas.width / 2,
+        canvas.height / 2
+      );
+      ctx.fillText(
+        `High Score: ${highScore}`,
+        canvas.width / 2,
+        canvas.height / 2 + 40 * scaleRatio
+      );
+
+      ctx.fillText(
+        "Press SPACE or TAP to Restart",
+        canvas.width / 2,
+        canvas.height / 2 + 100 * scaleRatio
+      );
+    };
+
+    const restartGame = () => {
+      gameOver = false;
+      score = 0;
+      gameSpeed = GAME_SPEED_START;
+      cactiController?.reset();
+      player.y = player.yStandingPosition;
+      previousTime = null;
+    };
+
     const gameLoop = (currentTime) => {
       if (previousTime === null) {
         previousTime = currentTime;
@@ -120,19 +164,63 @@ function App() {
       const frameTimeDelta = currentTime - previousTime;
       previousTime = currentTime;
 
-      // Update
-      ground.update(gameSpeed, frameTimeDelta);
-      cactiController.update(gameSpeed, frameTimeDelta);
-      player.update(gameSpeed, frameTimeDelta);
+      if (!gameOver) {
+        // Update
+        ground?.update(gameSpeed, frameTimeDelta);
+        cactiController?.update(gameSpeed, frameTimeDelta);
+        player?.update(gameSpeed, frameTimeDelta);
+
+        gameSpeed += GAME_SPEED_INCREMENT * frameTimeDelta * 0.00001;
+
+        score += frameTimeDelta * 0.05;
+
+        if (cactiController?.collideWith(player)) {
+          gameOver = true;
+
+          if (score > highScore) {
+            highScore = Math.floor(score);
+            localStorage.setItem("dinoHighScore", highScore);
+          }
+        }
+      }
 
       // Draw
       clearScreen();
-      ground.draw();
-      cactiController.draw();
-      player.draw();
+      ground?.draw();
+      cactiController?.draw();
+      player?.draw();
+
+      // Vẽ điểm số
+      ctx.fillStyle = "black";
+      ctx.font = `${20 * scaleRatio}px Arial`;
+      ctx.textAlign = "right";
+      ctx.fillText(
+        `Score: ${Math.floor(score)}`,
+        canvas.width - 20 * scaleRatio,
+        40 * scaleRatio
+      );
+      ctx.fillText(
+        `Hi: ${highScore}`,
+        canvas.width - 20 * scaleRatio,
+        70 * scaleRatio
+      );
+
+      if (gameOver) {
+        showGameOver();
+      }
 
       requestAnimationFrame(gameLoop);
     };
+
+    const handleRestart = (e) => {
+      if (gameOver && (e.code === "Space" || e.type === "touchstart")) {
+        e.preventDefault();
+        restartGame();
+      }
+    };
+
+    window.addEventListener("keydown", handleRestart);
+    window.addEventListener("touchstart", handleRestart);
 
     setScreen();
     requestAnimationFrame(gameLoop);
