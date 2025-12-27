@@ -1,27 +1,25 @@
 import "./game.css";
-import Player from "./Player.js";
-import Ground from "./Ground.js";
+import Player from "@/game/entities/Player.js";
+import Ground from "@/game/entities/Ground.js";
+import {
+  GAME_WIDTH,
+  GAME_HEIGHT,
+  PLAYER_ORIGINAL_WIDTH,
+  PLAYER_ORIGINAL_HEIGHT,
+  PLAYER_SCALE_DIVISOR,
+  MAX_JUMP_HEIGHT,
+  MIN_JUMP_HEIGHT,
+  GROUND_ORIGINAL_WIDTH,
+  GROUND_ORIGINAL_HEIGHT,
+  GROUND_AND_CACTUS_SPEED,
+  GAME_SPEED_START,
+  GAME_SPEED_INCREMENT,
+} from "@/game/constants.js";
+
 import { useEffect, useRef } from "react";
 
 function App() {
   const canvasRef = useRef(null);
-
-  const gameWidth = 800;
-  const gameHeight = 200;
-
-  const playerWidth = 88 / 1.5;
-  const playerHeight = 94 / 1.5;
-
-  const maxJumpHeight = gameHeight;
-  const minJumpHeight = 150;
-
-  const groundWidth = 2400;
-  const groundHeight = 24;
-
-  const groundAndCactusSpeed = 0.5;
-
-  const gameSpeedStart = 0.75;
-  const gameSpeedIncrement = 0.00001;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -29,22 +27,21 @@ function App() {
 
     let scaleRatio = null;
     let previousTime = null;
-
-    // Game objects
     let player = null;
     let ground = null;
-
-    let gamespeed = gameSpeedStart;
+    let gameSpeed = GAME_SPEED_START;
 
     const createSprites = () => {
-      const playerWidthInGame = playerWidth * scaleRatio;
-      const playerHeightInGame = playerHeight * scaleRatio;
+      const playerWidthInGame =
+        (PLAYER_ORIGINAL_WIDTH / PLAYER_SCALE_DIVISOR) * scaleRatio;
+      const playerHeightInGame =
+        (PLAYER_ORIGINAL_HEIGHT / PLAYER_SCALE_DIVISOR) * scaleRatio;
 
-      const maxJumpHeightInGame = maxJumpHeight * scaleRatio;
-      const minJumpHeightInGame = minJumpHeight * scaleRatio;
+      const maxJumpHeightInGame = MAX_JUMP_HEIGHT * scaleRatio;
+      const minJumpHeightInGame = MIN_JUMP_HEIGHT * scaleRatio;
 
-      const groundWidthInGame = groundWidth * scaleRatio;
-      const groundHeightInGame = groundHeight * scaleRatio;
+      const groundWidthInGame = GROUND_ORIGINAL_WIDTH * scaleRatio;
+      const groundHeightInGame = GROUND_ORIGINAL_HEIGHT * scaleRatio;
 
       player = new Player(
         ctx,
@@ -60,16 +57,16 @@ function App() {
         ctx,
         groundWidthInGame,
         groundHeightInGame,
-        groundAndCactusSpeed, // truyền speed
+        GROUND_AND_CACTUS_SPEED,
         scaleRatio,
-        canvas.height // truyền chiều cao canvas để tính y chính xác
+        canvas.height
       );
     };
 
     const setScreen = () => {
       scaleRatio = getScaleRatio();
-      canvas.width = gameWidth * scaleRatio;
-      canvas.height = gameHeight * scaleRatio;
+      canvas.width = GAME_WIDTH * scaleRatio;
+      canvas.height = GAME_HEIGHT * scaleRatio;
       createSprites();
     };
 
@@ -78,17 +75,14 @@ function App() {
         window.innerHeight,
         document.documentElement.clientHeight
       );
-
       const screenWidth = Math.min(
         window.innerWidth,
         document.documentElement.clientWidth
       );
 
-      if (screenWidth / screenHeight < gameWidth / gameHeight) {
-        return screenWidth / gameWidth;
-      } else {
-        return screenHeight / gameHeight;
-      }
+      return screenWidth / screenHeight < GAME_WIDTH / GAME_HEIGHT
+        ? screenWidth / GAME_WIDTH
+        : screenHeight / GAME_HEIGHT;
     };
 
     const clearScreen = () => {
@@ -106,15 +100,16 @@ function App() {
       const frameTimeDelta = currentTime - previousTime;
       previousTime = currentTime;
 
+      // Update
+      ground?.update(gameSpeed, frameTimeDelta);
+      player?.update(gameSpeed, frameTimeDelta);
+
+      // Draw
       clearScreen();
+      ground?.draw();
+      player?.draw();
 
-      // Update game objects
-      ground.update(gamespeed, frameTimeDelta);
-      player.update(gamespeed, frameTimeDelta);
-
-      // Draw game objects
-      if (ground) ground.draw();
-      if (player) player.draw();
+      // gameSpeed += GAME_SPEED_INCREMENT * frameTimeDelta;
 
       requestAnimationFrame(gameLoop);
     };
@@ -128,7 +123,6 @@ function App() {
     };
 
     window.addEventListener("resize", resizeHandler);
-
     if (screen.orientation) {
       screen.orientation.addEventListener("change", setScreen);
     }
@@ -141,11 +135,7 @@ function App() {
     };
   }, []);
 
-  return (
-    <>
-      <canvas id="game" ref={canvasRef}></canvas>
-    </>
-  );
+  return <canvas id="game" ref={canvasRef} />;
 }
 
 export default App;
