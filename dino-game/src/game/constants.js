@@ -18,3 +18,21 @@ export const GAME_SPEED_INCREMENT = 0.00001;
 
 export const JUMP_SPEED = 0.6;
 export const GRAVITY = 0.4;
+
+export const CACTI_CONFIG = [
+  {
+    width: 48 / 1.5,
+    height: 100 / 1.5,
+    src: "assets/cactus/cactus_single.png",
+  },
+  {
+    width: 98 / 1.5,
+    height: 100 / 1.5,
+    src: "assets/cactus/cactus_double_tall.png",
+  },
+  {
+    width: 68 / 1.5,
+    height: 100 / 1.5,
+    src: "assets/cactus/cactus_double_compact.png",
+  },
+];

@@ -1,6 +1,7 @@
 import "@/game.css";
 import Player from "@/game/entities/Player.js";
 import Ground from "@/game/entities/Ground.js";
+import CactiController from "@/game/CactiController.js";
 import {
   GAME_WIDTH,
   GAME_HEIGHT,
@@ -14,6 +15,7 @@ import {
   GROUND_AND_CACTUS_SPEED,
   GAME_SPEED_START,
   GAME_SPEED_INCREMENT,
+  CACTI_CONFIG,
 } from "@/game/constants.js";
 
 import { useEffect, useRef } from "react";
@@ -29,6 +31,7 @@ function App() {
     let previousTime = null;
     let player = null;
     let ground = null;
+    let cactiController = null;
     let gameSpeed = GAME_SPEED_START;
 
     const createSprites = () => {
@@ -60,6 +63,23 @@ function App() {
         GROUND_AND_CACTUS_SPEED,
         scaleRatio,
         canvas.height
+      );
+
+      const cactiImages = CACTI_CONFIG.map((cactus) => {
+        const img = new Image();
+        img.src = cactus.src;
+        return {
+          image: img,
+          width: cactus.width * scaleRatio,
+          height: cactus.height * scaleRatio,
+        };
+      });
+
+      cactiController = new CactiController(
+        ctx,
+        cactiImages,
+        scaleRatio,
+        GROUND_AND_CACTUS_SPEED
       );
     };
 
@@ -101,15 +121,15 @@ function App() {
       previousTime = currentTime;
 
       // Update
-      ground?.update(gameSpeed, frameTimeDelta);
-      player?.update(gameSpeed, frameTimeDelta);
+      ground.update(gameSpeed, frameTimeDelta);
+      cactiController.update(gameSpeed, frameTimeDelta);
+      player.update(gameSpeed, frameTimeDelta);
 
       // Draw
       clearScreen();
-      ground?.draw();
-      player?.draw();
-
-      // gameSpeed += GAME_SPEED_INCREMENT * frameTimeDelta;
+      ground.draw();
+      cactiController.draw();
+      player.draw();
 
       requestAnimationFrame(gameLoop);
     };
