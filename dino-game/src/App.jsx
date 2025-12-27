@@ -1,4 +1,4 @@
-import "./game.css";
+import "@/game.css";
 import Player from "@/game/entities/Player.js";
 import Ground from "@/game/entities/Ground.js";
 import {
@@ -47,8 +47,8 @@ function App() {
         ctx,
         playerWidthInGame,
         playerHeightInGame,
-        maxJumpHeightInGame,
         minJumpHeightInGame,
+        maxJumpHeightInGame,
         scaleRatio,
         canvas.height
       );
@@ -132,6 +132,7 @@ function App() {
       if (screen.orientation) {
         screen.orientation.removeEventListener("change", setScreen);
       }
+      player?.destroy();
     };
   }, []);
 

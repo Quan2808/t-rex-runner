@@ -15,3 +15,6 @@ export const GROUND_AND_CACTUS_SPEED = 0.5;
 
 export const GAME_SPEED_START = 0.75;
 export const GAME_SPEED_INCREMENT = 0.00001;
+
+export const JUMP_SPEED = 0.6;
+export const GRAVITY = 0.4;
